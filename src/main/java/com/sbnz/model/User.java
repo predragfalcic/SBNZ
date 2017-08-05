@@ -1,6 +1,7 @@
 package com.sbnz.model;
 
 import java.io.Serializable;
+import java.util.Collection;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -10,6 +11,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
 /**
@@ -41,6 +43,9 @@ public class User implements Serializable{
 	private Role role;
 	
 	private Profile profile;
+	
+	@OneToMany(mappedBy="buyer")
+	private Collection<Bill> bills;
 	
 	public User(){}
 
@@ -112,6 +117,14 @@ public class User implements Serializable{
 
 	public void setProfile(Profile profile) {
 		this.profile = profile;
+	}
+
+	public Collection<Bill> getBills() {
+		return bills;
+	}
+
+	public void setBills(Collection<Bill> bills) {
+		this.bills = bills;
 	}
 
 	@Override
