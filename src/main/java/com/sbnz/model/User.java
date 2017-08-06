@@ -40,7 +40,7 @@ public class User implements Serializable{
 	private String last_name;
 	
 	@ManyToOne
-	private Role role;
+	private Role userRole;
 	
 	@OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "profile_id")
@@ -58,7 +58,7 @@ public class User implements Serializable{
 		this.password = password;
 		this.first_name = first_name;
 		this.last_name = last_name;
-		this.role = role;
+		this.userRole = role;
 		this.profile = profile;
 	}
 
@@ -103,11 +103,11 @@ public class User implements Serializable{
 	}
 
 	public Role getRole() {
-		return role;
+		return userRole;
 	}
 
 	public void setRole(Role role) {
-		this.role = role;
+		this.userRole = role;
 	}
 
 
@@ -132,7 +132,7 @@ public class User implements Serializable{
 	@Override
 	public String toString() {
 		return "User [id=" + id + ", username=" + username + ", password=" + password + ", first_name=" + first_name
-				+ ", last_name=" + last_name + ", role=" + role + ", profile=" + profile + "]";
+				+ ", last_name=" + last_name + ", role=" + userRole + ", profile=" + profile + "]";
 	}
 	
 	

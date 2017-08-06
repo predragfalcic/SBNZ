@@ -9,6 +9,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
  * 
  * @author Predrag Falcic
@@ -26,7 +28,7 @@ public class Role {
 	@Column(unique=true)
 	private String name;
 	
-	@OneToMany(mappedBy="role")
+	@OneToMany(mappedBy="userRole")
 	private Collection<User> users;
 	
 	public Role(){}
@@ -56,7 +58,8 @@ public class Role {
 	public void setName(String name) {
 		this.name = name;
 	}
-
+	
+	@JsonIgnore
 	public Collection<User> getUsers() {
 		return users;
 	}
