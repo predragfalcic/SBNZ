@@ -1,7 +1,6 @@
 package com.sbnz.model;
 
 import java.util.Collection;
-import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -9,6 +8,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 
 /**
  * 
@@ -33,15 +34,19 @@ public class Sale {
 	
 	private int Discount; // Procentualni popust
 	
+	@OneToMany(mappedBy="sale")
 	private Collection<ArticalCategory> articalCategoriesOnSale; // Lista kategorija artikala koje su na akciji
 	
 	@ManyToMany(mappedBy = "sales")
-	private Set<Bill> bills;
+	private Collection<Bill> bills;
+	
+	@ManyToOne
+	private BillItem billItem;
 	
 	public Sale(){}
-
+	
 	public Sale(String code, String name, String activePeriod, int discount,
-			Collection<ArticalCategory> articalCategoriesOnSale, Set<Bill> bills) {
+			Collection<ArticalCategory> articalCategoriesOnSale, Collection<Bill> bills, BillItem billItem) {
 		super();
 		this.code = code;
 		this.name = name;
@@ -49,6 +54,7 @@ public class Sale {
 		Discount = discount;
 		this.articalCategoriesOnSale = articalCategoriesOnSale;
 		this.bills = bills;
+		this.billItem = billItem;
 	}
 
 	public Long getId() {
@@ -99,17 +105,26 @@ public class Sale {
 		this.articalCategoriesOnSale = articalCategoriesOnSale;
 	}
 
-	public Set<Bill> getBills() {
+	public Collection<Bill> getBills() {
 		return bills;
 	}
 
-	public void setBills(Set<Bill> bills) {
+	public void setBills(Collection<Bill> bills) {
 		this.bills = bills;
+	}
+
+	public BillItem getBillItem() {
+		return billItem;
+	}
+
+	public void setBillItem(BillItem billItem) {
+		this.billItem = billItem;
 	}
 
 	@Override
 	public String toString() {
 		return "Sale [id=" + id + ", code=" + code + ", name=" + name + ", activePeriod=" + activePeriod + ", Discount="
-				+ Discount + ", articalCategoriesOnSale=" + articalCategoriesOnSale + ", bills=" + bills + "]";
+				+ Discount + ", articalCategoriesOnSale=" + articalCategoriesOnSale + ", bills=" + bills + ", billItem="
+				+ billItem + "]";
 	}
 }

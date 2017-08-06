@@ -42,6 +42,8 @@ public class User implements Serializable{
 	@ManyToOne
 	private Role role;
 	
+	@OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "profile_id")
 	private Profile profile;
 	
 	@OneToMany(mappedBy="buyer")

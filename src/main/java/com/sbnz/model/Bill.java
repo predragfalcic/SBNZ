@@ -1,6 +1,7 @@
 package com.sbnz.model;
 
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -13,6 +14,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 
 /**
  * 
@@ -30,8 +32,6 @@ public class Bill {
 	
 	@Column(unique=true)
 	private String code;
-	
-	private String name;
 	
 	private Timestamp dateTime;
 	
@@ -56,20 +56,22 @@ public class Bill {
     inverseJoinColumns = @JoinColumn(name = "sale_id", referencedColumnName = "id"))
 	private Set<Sale> sales;
 	
-	@ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(name = "bill_items", 
-    joinColumns = @JoinColumn(name = "bill_id", referencedColumnName = "id"), 
-    inverseJoinColumns = @JoinColumn(name = "artical_id", referencedColumnName = "id"))
-	private Set<Artical> articals;
+	@OneToMany
+	private Collection<BillItem> billItems;
+	
+	@ManyToOne
+	private BillDiscount billDiscount;
+	
+	@ManyToOne
+	private BillItemDiscount billItemDiscount;
 	
 	public Bill(){}
-
-	public Bill(String code, String name, Timestamp dateTime, User buyer, String state, Double originalPrize,
-			int discount, Double finalPrize, int numSpentRewardingPoints, int numAchievedRewardingPoints,
-			Set<Sale> sales, Set<Artical> articals) {
+	
+	public Bill(String code, Timestamp dateTime, User buyer, String state, Double originalPrize, int discount,
+			Double finalPrize, int numSpentRewardingPoints, int numAchievedRewardingPoints, Set<Sale> sales,
+			Collection<BillItem> billItems, BillDiscount billDiscount, BillItemDiscount billItemDiscount) {
 		super();
 		this.code = code;
-		this.name = name;
 		this.dateTime = dateTime;
 		this.buyer = buyer;
 		this.state = state;
@@ -79,7 +81,9 @@ public class Bill {
 		this.numSpentRewardingPoints = numSpentRewardingPoints;
 		this.numAchievedRewardingPoints = numAchievedRewardingPoints;
 		this.sales = sales;
-		this.articals = articals;
+		this.billItems = billItems;
+		this.billDiscount = billDiscount;
+		this.billItemDiscount = billItemDiscount;
 	}
 
 	public Long getId() {
@@ -96,14 +100,6 @@ public class Bill {
 
 	public void setCode(String code) {
 		this.code = code;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	public Timestamp getDateTime() {
@@ -178,21 +174,28 @@ public class Bill {
 		this.sales = sales;
 	}
 
-	public Set<Artical> getArticals() {
-		return articals;
+	public Collection<BillItem> getBillItems() {
+		return billItems;
 	}
 
-	public void setArticals(Set<Artical> articals) {
-		this.articals = articals;
+	public void setBillItems(Collection<BillItem> billItems) {
+		this.billItems = billItems;
+	}
+
+	public BillDiscount getBillDiscount() {
+		return billDiscount;
+	}
+
+	public void setBillDiscount(BillDiscount billDiscount) {
+		this.billDiscount = billDiscount;
 	}
 
 	@Override
 	public String toString() {
-		return "Bill [id=" + id + ", code=" + code + ", name=" + name + ", dateTime=" + dateTime + ", buyer=" + buyer
-				+ ", state=" + state + ", originalPrize=" + originalPrize + ", discount=" + discount + ", finalPrize="
-				+ finalPrize + ", numSpentRewardingPoints=" + numSpentRewardingPoints + ", numAchievedRewardingPoints="
-				+ numAchievedRewardingPoints + ", sales=" + sales + ", articals=" + articals + "]";
+		return "Bill [id=" + id + ", code=" + code + ", dateTime=" + dateTime + ", buyer=" + buyer + ", state=" + state
+				+ ", originalPrize=" + originalPrize + ", discount=" + discount + ", finalPrize=" + finalPrize
+				+ ", numSpentRewardingPoints=" + numSpentRewardingPoints + ", numAchievedRewardingPoints="
+				+ numAchievedRewardingPoints + ", sales=" + sales + ", billItems=" + billItems + ", billDiscount="
+				+ billDiscount + ", billItemDiscount=" + billItemDiscount + "]";
 	}
-	
-	
 }

@@ -1,13 +1,12 @@
 package com.sbnz.model;
 
-import java.util.Set;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 
 /**
  * 
@@ -26,27 +25,42 @@ public class Artical {
 	
 	private String name;
 	
-	private String kategorijaArtikla; // Mozda treba napraviti novu klasu za kategorije
+	@ManyToOne
+	private ArticalCategory category;
+	
+	@ManyToOne
+	private SubCategory subCategory;
 	
 	private Double prize;
 	
 	private int inStock;
 	
 	private String state; // Aktivan ili arhiviran
-
-	@ManyToMany(mappedBy = "articals")
-	private Set<Bill> bills;
+	
+	@OneToOne(mappedBy="artical")
+	private BillItem billItem;
 	
 	public Artical(){}
-	
-	public Artical(String code, String name, String kategorijaArtikla, Double prize, int inStock, String state) {
+
+	public Artical(String code, String name, ArticalCategory category, SubCategory subCategory, Double prize,
+			int inStock, String state, BillItem billItem) {
 		super();
 		this.code = code;
 		this.name = name;
-		this.kategorijaArtikla = kategorijaArtikla;
+		this.category = category;
+		this.subCategory = subCategory;
 		this.prize = prize;
 		this.inStock = inStock;
 		this.state = state;
+		this.billItem = billItem;
+	}
+
+	public SubCategory getSubCategory() {
+		return subCategory;
+	}
+
+	public void setSubCategory(SubCategory subCategory) {
+		this.subCategory = subCategory;
 	}
 
 	public Long getId() {
@@ -73,12 +87,12 @@ public class Artical {
 		this.name = name;
 	}
 
-	public String getKategorijaArtikla() {
-		return kategorijaArtikla;
+	public ArticalCategory getCategory() {
+		return category;
 	}
 
-	public void setKategorijaArtikla(String kategorijaArtikla) {
-		this.kategorijaArtikla = kategorijaArtikla;
+	public void setCategory(ArticalCategory category) {
+		this.category = category;
 	}
 
 	public Double getPrize() {
@@ -105,17 +119,19 @@ public class Artical {
 		this.state = state;
 	}
 	
-	public Set<Bill> getBills() {
-		return bills;
+	public BillItem getBillItem() {
+		return billItem;
 	}
 
-	public void setBills(Set<Bill> bills) {
-		this.bills = bills;
+	public void setBillItem(BillItem billItem) {
+		this.billItem = billItem;
 	}
 
 	@Override
 	public String toString() {
-		return "Artikal [id=" + id + ", code=" + code + ", name=" + name + ", kategorijaArtikla=" + kategorijaArtikla
-				+ ", prize=" + prize + ", inStock=" + inStock + ", state=" + state + "]";
+		return "Artical [id=" + id + ", code=" + code + ", name=" + name + ", category=" + category + ", subCategory="
+				+ subCategory + ", prize=" + prize + ", inStock=" + inStock + ", state=" + state + ", billItem="
+				+ billItem + "]";
 	}
+	
 }
