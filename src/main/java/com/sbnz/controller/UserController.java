@@ -113,67 +113,126 @@ public class UserController {
 	}
 	
 	// Process confirmation link
-		@RequestMapping(value="/confirm", method = RequestMethod.GET)
-		public ModelAndView showConfirmationPage(ModelAndView modelAndView, @RequestParam("token") String token) {
-				
-			User user = userService.findByConfirmationToken(token);
+	@RequestMapping(value="/confirm", method = RequestMethod.GET)
+	public ModelAndView showConfirmationPage(ModelAndView modelAndView, @RequestParam("token") String token) {
 			
-			if (user == null) { // No token found in DB
-				modelAndView.addObject("invalidToken", "Oops!  This is an invalid confirmation link.");
-			} else { // Token found
-				modelAndView.addObject("confirmationToken", user.getConfirmationToken());
-			}
-				
-			modelAndView.setViewName("confirm");
-			return modelAndView;		
+		User user = userService.findByConfirmationToken(token);
+		
+		if (user == null) { // No token found in DB
+			modelAndView.addObject("invalidToken", "Oops!  This is an invalid confirmation link.");
+		} else { // Token found
+			modelAndView.addObject("confirmationToken", user.getConfirmationToken());
+		}
+			
+		modelAndView.setViewName("confirm");
+		return modelAndView;		
+	}
+		
+	// Process confirmation link
+	@RequestMapping(value="/confirm", method = RequestMethod.POST)
+	public ModelAndView processConfirmationForm(ModelAndView modelAndView, 
+			BindingResult bindingResult, 
+			@RequestParam Map requestParams, 
+			RedirectAttributes redir) {
+		
+		bCryptPasswordEncoder = new BCryptPasswordEncoder();
+		
+		modelAndView.setViewName("confirm");
+	
+		Zxcvbn passwordCheck = new Zxcvbn();
+		
+		Strength strength = passwordCheck.measure(requestParams.get("password").toString());
+		
+		if (strength.getScore() < 3) {
+			bindingResult.reject("password");
+			
+			redir.addFlashAttribute("errorMessage", "Your password is too weak.  Choose a stronger one.");
+
+			modelAndView.setViewName("redirect:confirm?token=" + requestParams.get("token"));
+			return modelAndView;
 		}
 		
-		// Process confirmation link
-		@RequestMapping(value="/confirm", method = RequestMethod.POST)
-		public ModelAndView processConfirmationForm(ModelAndView modelAndView, 
-				BindingResult bindingResult, 
-				@RequestParam Map requestParams, 
-				RedirectAttributes redir) {
-			
-			bCryptPasswordEncoder = new BCryptPasswordEncoder();
-			
-			modelAndView.setViewName("confirm");
+		// Find the user associated with the reset token
+		User user = userService.findByConfirmationToken(requestParams.get("token").toString());
 		
-			Zxcvbn passwordCheck = new Zxcvbn();
-			
-			Strength strength = passwordCheck.measure(requestParams.get("password").toString());
-			
-			if (strength.getScore() < 3) {
-				bindingResult.reject("password");
-				
-				redir.addFlashAttribute("errorMessage", "Your password is too weak.  Choose a stronger one.");
+		// Set new password
+		user.setPassword(bCryptPasswordEncoder.encode(requestParams.get("password").toString()));
 
-				modelAndView.setViewName("redirect:confirm?token=" + requestParams.get("token"));
-				return modelAndView;
-			}
-			
-			// Find the user associated with the reset token
-			User user = userService.findByConfirmationToken(requestParams.get("token").toString());
-			
-			// Set new password
-			user.setPassword(bCryptPasswordEncoder.encode(requestParams.get("password").toString()));
-
-			System.out.println("Users pass: " + user.getPassword());
-			
-			// Set user to enabled
-			user.setEnabled(true);
-			
-			// Save user
-			userService.save(user);
-			
-			modelAndView.addObject("successMessage", "Your password has been set!");
-			return modelAndView;		
-		}
+		System.out.println("Users pass: " + user.getPassword());
 		
+		// Set user to enabled
+		user.setEnabled(true);
+		
+		// Save user
+		userService.save(user);
+		
+		modelAndView.addObject("successMessage", "Your password has been set!");
+		return modelAndView;		
+	}
+	
+	/**
+	 * Display the login form to the user
+	 * @param modelAndView
+	 * @param user
+	 * @return ModelAndView
+	 */
+	@RequestMapping(path="/login", method = RequestMethod.GET)
+	public ModelAndView login(ModelAndView modelAndView, User user){
+		modelAndView.addObject("user", user);
+		modelAndView.setViewName("login");
+		return modelAndView;
+	}
+	
+	/**
+	 * Check if the entered data is correct and if the user exists
+	 * If so than login the user
+	 * @param modelAndView
+	 * @param bindingResult
+	 * @param requestParams
+	 * @param redir
+	 * @param user
+	 * @return ModelAndView
+	 */
 	@RequestMapping(path="/login", method = RequestMethod.POST)
-	public String login(@RequestBody @Valid User user, Map<String, Object> model){
-		User result_user = userService.findUserByUsername(user.getUsername());
-		model.put("username", result_user.getUsername());
-		return "welcome";
+	public ModelAndView processLogin(ModelAndView modelAndView, 
+			BindingResult bindingResult,
+			@RequestParam Map requestParams, 
+			RedirectAttributes redir,
+			@Valid User user){
+		
+		bCryptPasswordEncoder = new BCryptPasswordEncoder();
+		
+		modelAndView.setViewName("login");
+		
+		// Find the user associated with the reset token
+		User resultUser = userService.findUserByUsername(requestParams.get("username").toString());
+		
+		if(resultUser == null){
+			
+			modelAndView.addObject("errorMessage", "User with that username does not exist.");
+			
+			return modelAndView;
+		}
+		
+		// Check password
+		if(!bCryptPasswordEncoder.matches(requestParams.get("password").toString(), resultUser.getPassword())){
+			
+			modelAndView.addObject("errorMessage", "Entered password is invalid.");
+			
+			return modelAndView;
+		}
+		
+		
+		// Check if the user is enabled
+		if(!resultUser.getEnabled()){
+			
+			modelAndView.addObject("errorMessage", "User does not exist.");
+			
+			return modelAndView;
+		}
+		
+		modelAndView = new ModelAndView("welcome");
+		modelAndView.addObject("username", resultUser.getUsername());
+		return modelAndView;	
 	}
 }
