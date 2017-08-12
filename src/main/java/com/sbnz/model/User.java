@@ -13,6 +13,10 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.Transient;
+
+import org.hibernate.validator.constraints.Email;
+import org.hibernate.validator.constraints.NotEmpty;
 
 /**
  * 
@@ -31,7 +35,9 @@ public class User implements Serializable{
 	private Long id;
 	
 	@Column(unique=true)
-	private String username;
+	@Email(message = "Please provide a valid e-mail")
+	@NotEmpty(message = "Please provide an e-mail")
+	private String username; // Users username is email address
 	
 	private String password;
 	
@@ -49,6 +55,10 @@ public class User implements Serializable{
 	@OneToMany(mappedBy="buyer")
 	private Collection<Bill> bills;
 	
+	private String confirmationToken;
+	
+	private boolean enabled;
+	
 	public User(){}
 
 	public User(String username, String password, String first_name, String last_name, Role role,
@@ -62,6 +72,14 @@ public class User implements Serializable{
 		this.profile = profile;
 	}
 
+	public String getConfirmationToken() {
+		return confirmationToken;
+	}
+
+	public void setConfirmationToken(String confirmationToken) {
+		this.confirmationToken = confirmationToken;
+	}
+	
 	public Long getId() {
 		return id;
 	}
@@ -129,6 +147,14 @@ public class User implements Serializable{
 		this.bills = bills;
 	}
 
+	public boolean getEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(boolean value) {
+		this.enabled = value;
+	}
+	
 	@Override
 	public String toString() {
 		return "User [id=" + id + ", username=" + username + ", password=" + password + ", first_name=" + first_name
