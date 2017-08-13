@@ -11,7 +11,6 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,9 +19,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.nulabinc.zxcvbn.Strength;
 import com.nulabinc.zxcvbn.Zxcvbn;
+import com.sbnz.model.Profile;
 import com.sbnz.model.Role;
 import com.sbnz.model.User;
 import com.sbnz.services.EmailService;
+import com.sbnz.services.ProfileService;
 import com.sbnz.services.RoleService;
 import com.sbnz.services.UserService;
 
@@ -40,6 +41,22 @@ public class UserController {
 	
 	@Autowired
 	RoleService roleService;
+	
+	@Autowired
+	ProfileService profileService;
+	
+	/**
+	 * Display logged users profile page
+	 * @param modelAndView
+	 * @param user
+	 * @return ModelAndView
+	 */
+	@RequestMapping(value = "/profile", method = RequestMethod.GET)
+	public ModelAndView welcome(ModelAndView modelAndView, User user){
+		modelAndView.addObject("user", user);
+		modelAndView.setViewName("welcome");
+		return modelAndView;
+	}
 	
 	/**
 	 * Display home page with registration form on it
@@ -112,7 +129,12 @@ public class UserController {
 		return modelAndView;
 	}
 	
-	// Process confirmation link
+	/**
+	 * Process confirmation link
+	 * @param modelAndView
+	 * @param token
+	 * @return ModelAndView
+	 */
 	@RequestMapping(value="/confirm", method = RequestMethod.GET)
 	public ModelAndView showConfirmationPage(ModelAndView modelAndView, @RequestParam("token") String token) {
 			
@@ -128,7 +150,14 @@ public class UserController {
 		return modelAndView;		
 	}
 		
-	// Process confirmation link
+	/**
+	 * Process confirmation link
+	 * @param modelAndView
+	 * @param bindingResult
+	 * @param requestParams
+	 * @param redir
+	 * @return
+	 */
 	@RequestMapping(value="/confirm", method = RequestMethod.POST)
 	public ModelAndView processConfirmationForm(ModelAndView modelAndView, 
 			BindingResult bindingResult, 
@@ -157,11 +186,16 @@ public class UserController {
 		
 		// Set new password
 		user.setPassword(bCryptPasswordEncoder.encode(requestParams.get("password").toString()));
-
-		System.out.println("Users pass: " + user.getPassword());
 		
 		// Set user to enabled
 		user.setEnabled(true);
+		
+		// Create profile for the user and save the profile to database
+		Profile profile = new Profile(user);
+		profileService.save(profile);
+		
+		// Set users profile
+		user.setProfile(profile);
 		
 		// Save user
 		userService.save(user);
@@ -169,6 +203,7 @@ public class UserController {
 		modelAndView.addObject("successMessage", "Your password has been set!");
 		return modelAndView;		
 	}
+	
 	
 	/**
 	 * Display the login form to the user
@@ -231,8 +266,15 @@ public class UserController {
 			return modelAndView;
 		}
 		
-		modelAndView = new ModelAndView("welcome");
-		modelAndView.addObject("username", resultUser.getUsername());
+		if(resultUser.getRole().getName().equals("Buyer")){
+			modelAndView = new ModelAndView("welcome");
+		}else if(resultUser.getRole().getName().equals("Manager")){
+			modelAndView = new ModelAndView("ManagerProfile");
+		}else{
+			modelAndView = new ModelAndView("SelerProfile");
+		}
+		
+		modelAndView.addObject("user", resultUser);
 		return modelAndView;	
 	}
 }
