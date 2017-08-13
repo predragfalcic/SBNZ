@@ -24,6 +24,15 @@ public class UserService {
 	}
 	
 	/**
+	 * Find user by its id
+	 * @param id
+	 * @return User
+	 */
+	public User findUserById(Long id){
+		return userRepository.findOne(id);
+	}
+	
+	/**
 	 * Save user to database
 	 * @param user
 	 * @return User
@@ -40,6 +49,11 @@ public class UserService {
 		return userRepository.findAll();
 	}
 	
+	/**
+	 * Return user by confirmation token
+	 * @param confirmationToken 
+	 * @return User
+	 */
 	public User findByConfirmationToken(String confirmationToken) {
 		return userRepository.findByConfirmationToken(confirmationToken);
 	}

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Buyer categories</title>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body>
+	<div class="container col-sm-6 col-sm-offset-3 " >
+		<div class="row">
+			<h2 class="text-center">Buyer categories</h2>
+			<table class="table table-striped">
+				<tr>
+				    <th>Name</th>
+				    <th>Consumption Treshold</th>
+				</tr>
+				<tr th:each="buyerCategory : ${buyerCategories}">
+					<td th:text="${buyerCategory.name}"></td>
+					<td th:text="${buyerCategory.consumptionTreshold}"></td>
+				</tr>
+			</table>
+		</div>
+		<div class="row">
+			<h3 class="text-center">Add new Buyer Category</h3>
+			<form id="buyerCategoryForm" autocomplete="off" action="#" th:action="@{/user/{id}/buyercategories(id=${user.id})}"
+	        th:object="${bc}" method="post" class="m-t" role="form"
+	        data-toggle="validator">
+	
+	        <div th:if="${errorMessage}"
+	          class="alert alert-danger" role="alert"
+	          th:text="${errorMessage}"></div>
+			
+			<div class="form-group input-group has-feedback">
+	          <input type="text" th:field="*{code}"
+	            placeholder="Code" class="form-control" required />
+	        </div>
+			
+	        <div class="form-group input-group has-feedback">
+	          <input type="text" th:field="*{name}"
+	            placeholder="Name" class="form-control" required />
+	        </div>
+	       
+	       <div class="form-group input-group">
+	          <input name="minConsumption" type="number" id="minConsumption"  
+	            placeholder="Min Spending" class="form-control" required />
+	        </div>
+	        
+	        <div class="form-group input-group">
+	          <input name="maxConsumption" type="number" id="maxConsumption"  
+	            placeholder="Max Spending" class="form-control" required />
+	        </div>
+	        
+	        <button type="submit"
+	          class="btn btn-primary block full-width m-b">Add</button>
+	
+	      </form>
+		</div>
+	</div>
+</body>
+</html>

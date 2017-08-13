@@ -80,4 +80,14 @@ public class BuyerCategory {
 	public void setProfiles(Collection<Profile> profiles) {
 		this.profiles = profiles;
 	}
+
+	public ConsumptionThreshold getConsumptionTreshold() {
+		return consumptionTreshold;
+	}
+
+	public void setConsumptionTreshold(ConsumptionThreshold consumptionTreshold) {
+		this.consumptionTreshold = consumptionTreshold;
+	}
+	
+	
 }

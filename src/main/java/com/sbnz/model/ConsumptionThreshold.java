@@ -75,8 +75,7 @@ public class ConsumptionThreshold {
 
 	@Override
 	public String toString() {
-		return "ConsumptionThreshold [id=" + id + ", minSpending=" + minSpending + ", maxSpending=" + maxSpending
-				+ ", buyerCategory=" + buyerCategory + "]";
+		return minSpending + " - " + maxSpending;
 	}
 	
 }
