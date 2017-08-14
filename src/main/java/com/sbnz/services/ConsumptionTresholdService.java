@@ -16,7 +16,11 @@ public class ConsumptionTresholdService {
 		return ctRepository.save(ct);
 	}
 	
-	public ConsumptionThreshold findOneById(Long id){
-		return ctRepository.getOne(id);
+	public ConsumptionThreshold findOneByMinSpending(double minSpending){
+		return ctRepository.findOneByMinSpending(minSpending);
+	}
+	
+	public ConsumptionThreshold findOneByMaxSpending(double maxSpending){
+		return ctRepository.findOneByMaxSpending(maxSpending);
 	}
 }

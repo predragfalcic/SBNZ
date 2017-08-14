@@ -1,5 +1,6 @@
 package com.sbnz.model;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -27,7 +28,7 @@ public class ConsumptionThreshold {
 	
 	private Double maxSpending;
 	
-	@OneToOne(mappedBy = "consumptionTreshold")
+	@OneToOne(mappedBy = "consumptionTreshold", cascade=CascadeType.ALL)
 	private BuyerCategory buyerCategory;
 	
 	//Kreiraj ovde i funkciju za dodelu bodova kad dodje vreme za to

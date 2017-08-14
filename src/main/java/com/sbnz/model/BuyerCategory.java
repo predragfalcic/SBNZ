@@ -2,6 +2,7 @@ package com.sbnz.model;
 
 import java.util.Collection;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -32,21 +33,29 @@ public class BuyerCategory {
 	
 	private String name;
 	
-	@OneToOne
+	@OneToOne(cascade=CascadeType.ALL)
 	@JoinColumn(name = "consumption_threshold_id")
 	private ConsumptionThreshold consumptionTreshold;
 	
 	@OneToMany(mappedBy="buyerCategory")
 	private Collection<Profile> profiles;
 	
+	private int procentOfSpendingToPoints; // Procenat od korisnikove potrosnje koji se konvertuje u nagradne bodove
+	
 	public BuyerCategory(){}
 
-	public BuyerCategory(String code, String name, Double minSpending, Double maxSpending,
-			Collection<Profile> profiles) {
+	public BuyerCategory(String code, String name, ConsumptionThreshold consumptionTreshold,
+			Collection<Profile> profiles, int procentOfSpendingToPoints) {
 		super();
 		this.code = code;
 		this.name = name;
+		this.consumptionTreshold = consumptionTreshold;
 		this.profiles = profiles;
+		this.procentOfSpendingToPoints = procentOfSpendingToPoints;
+	}
+	
+	public BuyerCategory(BuyerCategory bc){
+		this(bc.getCode(), bc.getName(), bc.getConsumptionTreshold(), bc.getProfiles(), bc.getProcentOfSpendingToPoints());
 	}
 
 	public Long getId() {
@@ -88,6 +97,19 @@ public class BuyerCategory {
 	public void setConsumptionTreshold(ConsumptionThreshold consumptionTreshold) {
 		this.consumptionTreshold = consumptionTreshold;
 	}
-	
-	
+
+	public int getProcentOfSpendingToPoints() {
+		return procentOfSpendingToPoints;
+	}
+
+	public void setProcentOfSpendingToPoints(int procentOfSpendingToPoints) {
+		this.procentOfSpendingToPoints = procentOfSpendingToPoints;
+	}
+
+	@Override
+	public String toString() {
+		return "BuyerCategory [id=" + id + ", code=" + code + ", name=" + name + ", consumptionTreshold="
+				+ consumptionTreshold + ", profiles=" + profiles + ", procentOfSpendingToPoints="
+				+ procentOfSpendingToPoints + "]";
+	}
 }

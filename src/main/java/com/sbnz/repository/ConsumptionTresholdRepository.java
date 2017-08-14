@@ -5,4 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.sbnz.model.ConsumptionThreshold;
 
 public interface ConsumptionTresholdRepository extends JpaRepository<ConsumptionThreshold, Long>{
+	ConsumptionThreshold findOneByMinSpending(double minSpending);
+	ConsumptionThreshold findOneByMaxSpending(double maxSpending);
 }

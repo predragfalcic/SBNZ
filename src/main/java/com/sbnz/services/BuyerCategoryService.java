@@ -48,4 +48,21 @@ public class BuyerCategoryService {
 	public BuyerCategory findOneByName(String name){
 		return buyerCategoryRepository.findOneByName(name);
 	}
+	
+	/**
+	 * Delete Buyer Category by its id
+	 * @param id
+	 */
+	public void delete(Long id){
+		buyerCategoryRepository.delete(id);
+	}
+	
+	/**
+	 * Find BuyerCategory by its id
+	 * @param id
+	 * @return
+	 */
+	public BuyerCategory findOneById(Long id){
+		return buyerCategoryRepository.findOne(id);
+	}
 }
