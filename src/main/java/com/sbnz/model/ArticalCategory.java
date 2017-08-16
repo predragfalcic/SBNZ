@@ -115,7 +115,6 @@ public class ArticalCategory {
 		return "ArticalCategory [id=" + id + ", code=" + code + ", name=" + name + ", subCategories=" + subCategories
 				+ ", maxDiscount=" + maxDiscount + ", articals=" + articals + ", sale=" + sale + "]";
 	}
-	
 }
 
 

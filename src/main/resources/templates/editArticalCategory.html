@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="ISO-8859-1">
-<title>Edit Buyer Category</title>
+<title>Edit Artical Category</title>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
@@ -10,14 +10,14 @@
 <body>
 	<div class="container col-sm-6 col-sm-offset-3" >
 		<div class="row col-sm-6 col-sm-offset-3">
-			<h3 class="text-center">Edit Buyer Category</h3>
+			<h3 class="text-center">Edit Artical Category</h3>
 			
 			<div th:if="${successMessage}" class="alert alert-success"
         		role="alert" th:text=${successMessage}></div>
         
 			<form id="buyerCategoryForm" autocomplete="off" action="#" 
-			th:action="@{/user/{id}/buyercategories/{bc_id}/edit(id=${user.id}, bc_id=${bc.id})}"
-	        th:object="${bc}" method="post" class="m-t" role="form"
+			th:action="@{/user/{id}/articalcategories/{ac_id}/edit(id=${user.id}, ac_id=${ac.id})}"
+	        th:object="${ac}" method="post" class="m-t" role="form"
 	        data-toggle="validator">
 	
 	        <div th:if="${errorMessage}"
@@ -35,18 +35,8 @@
 	        </div>
 	       
 	       <div class="form-group input-group has-feedback col-sm-12">
-	          <input type="number" th:field="*{procentOfSpendingToPoints}"  
+	          <input type="number" th:field="*{maxDiscount}"  
 	            placeholder="Procentage for points" min="0" max="100" class="form-control" required />
-	        </div>
-	        
-	       <div class="form-group input-group col-sm-12">
-	          <input type="number" th:field="*{consumptionTreshold.minSpending}"  
-	            placeholder="Min Spending" class="form-control" required />
-	        </div>
-	        
-	        <div class="form-group input-group col-sm-12">
-	          <input type="number" th:field="*{consumptionTreshold.maxSpending}" 
-	            placeholder="Max Spending" class="form-control" required />
 	        </div>
 	        
 	        <button type="submit"

@@ -8,5 +8,6 @@
 	<h1>Manager</h1>
 	<h1 th:text="${'Welcome to your profile ' + user.first_name + ' ' + user.last_name}"></h1>
 	<a th:href="@{/user/{id}/buyercategories(id=${user.id})}">Buyer categories</a>
+	<a th:href="@{/user/{id}/articalcategories(id=${user.id})}">Artical categories</a>
 </body>
 </html>
