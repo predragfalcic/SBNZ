@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Sales</title>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/css/bootstrap-multiselect.css"></script>
+</head>
+<body>
+	<div class="container col-sm-6 col-sm-offset-3" >
+		<div class="row">
+			<h2 class="text-center">Sales</h2>
+			<table class="table table-striped">
+				<tr>
+					<th>Code</th>
+				    <th>Name</th>
+				    <th>Begin of active period</th>
+				    <th>End of active period</th>
+				    <th>Discount</th>
+				    <th>Artical Categories on sale</th>
+				    <th>Edit</th>
+				    <th>Delete</th>
+				</tr>
+				<tr th:each="sale : ${sales}">
+					<td th:text="${sale.code}"></td>
+					<td th:text="${sale.name}"></td>
+					<td th:text="${sale.beginActivePeriod}"></td>
+					<td th:text="${sale.endActivePeriod}"></td>
+					<td th:text="${sale.discount}"></td>
+					<td th:text="${sale.articalCategoriesOnSale}">fd</td>
+					<td><a type="button" th:href="@{/user/{id}/sales/{sale_id}/edit(id=${user.id}, sale_id=${sale.id})}" class="btn btn-default" aria-label="Left Align">
+						  <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+						</a>
+					</td>
+					<td><a type="button" th:href="@{/user/{id}/sales/{sale_id}/delete(id=${user.id}, sale_id=${sale.id})}" class="btn btn-default" aria-label="Left Align">
+						  <span class="glyphicon glyphicon-remove-circle" aria-hidden="true"></span>
+						</a>
+					</td>
+				</tr>
+			</table>
+		</div>
+		<div class="row col-sm-6 col-sm-offset-3">
+			<h3 class="text-center">Add new Sale</h3>
+			
+			<form id="saleForm" autocomplete="off" action="#" th:action="@{/user/{id}/sales(id=${user.id})}"
+	        th:object="${sa}" method="post" class="m-t" role="form"
+	        data-toggle="validator">
+	
+	        <div th:if="${errorMessage}"
+	          class="alert alert-danger" role="alert"
+	          th:text="${errorMessage}"></div>
+			
+			<div class="form-group input-group has-feedback col-sm-12">
+	          <input type="text" th:field="*{code}"
+	            placeholder="Code" class="form-control" required />
+	        </div>
+			
+	        <div class="form-group input-group has-feedback col-sm-12">
+	          <input type="text" th:field="*{name}"
+	            placeholder="Name" class="form-control" required />
+	        </div>
+	       
+	        <div class="form-group input-group has-feedback col-sm-12">
+	          <input type="date" th:field="*{beginActivePeriod}"  
+	            placeholder="Start of sale" min="0" max="100" class="form-control" required />
+	        </div>
+	        
+	        <div class="form-group input-group has-feedback col-sm-12">
+	          <input type="date" th:field="*{endActivePeriod}"  
+	            placeholder="End of sale" min="0" max="100" class="form-control" required />
+	        </div>
+	        
+	        <div class="form-group input-group has-feedback col-sm-12">
+	          <input type="number" th:field="*{discount}"  
+	            placeholder="Discount" min="0" max="100" class="form-control" required />
+	        </div>
+	        
+	        <div class="form-group input-group has-feedback col-sm-12">
+	          <select class="form-control" id="selectedArticalCategories" name="selectedArticalCategories" multiple="multiple">
+	          	<option th:each="ac : ${articalCategories}" 
+                    th:value="${ac.id}"
+                    th:text="${ac.name}">
+                </option>
+	          </select>
+	        </div>
+	        
+	        <button type="submit"
+	          class="btn btn-primary block full-width m-b">Add</button>
+	
+	      </form>
+		</div>
+	</div>
+	<script type="text/javascript">
+		$('#selectedArticalCategories').multiselect({
+			enableClickableOptGroups: true
+		});
+	</script>
+</body>
+</html>

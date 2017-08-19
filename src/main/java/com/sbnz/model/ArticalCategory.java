@@ -2,13 +2,18 @@ package com.sbnz.model;
 
 import java.util.Collection;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * 
@@ -38,20 +43,21 @@ public class ArticalCategory {
 	@OneToMany(mappedBy="category")
 	private Collection<Artical> articals;
 	
-	@ManyToOne
-	private Sale sale;
+	
+	@ManyToMany(mappedBy="articalCategoriesOnSale", cascade = CascadeType.ALL)
+	private Collection<Sale> articalCategorySales;
 	
 	public ArticalCategory(){}
 	
 	public ArticalCategory(String code, String name, Collection<SubCategory> subCategories, int maxDiscount,
-			Collection<Artical> articals, Sale sale) {
+			Collection<Artical> articals, Collection<Sale> sales) {
 		super();
 		this.code = code;
 		this.name = name;
 		this.subCategories = subCategories;
 		this.maxDiscount = maxDiscount;
 		this.articals = articals;
-		this.sale = sale;
+		this.articalCategorySales = sales;
 	}
 
 	public Long getId() {
@@ -102,18 +108,18 @@ public class ArticalCategory {
 		this.articals = articals;
 	}
 
-	public Sale getSale() {
-		return sale;
+	@JsonIgnore
+	public Collection<Sale> getSale() {
+		return articalCategorySales;
 	}
 
-	public void setSale(Sale sale) {
-		this.sale = sale;
+	public void setSale(Collection<Sale> sales) {
+		this.articalCategorySales = sales;
 	}
 
 	@Override
 	public String toString() {
-		return "ArticalCategory [id=" + id + ", code=" + code + ", name=" + name + ", subCategories=" + subCategories
-				+ ", maxDiscount=" + maxDiscount + ", articals=" + articals + ", sale=" + sale + "]";
+		return name;
 	}
 }
 

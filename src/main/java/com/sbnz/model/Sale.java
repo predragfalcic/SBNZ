@@ -1,12 +1,16 @@
 package com.sbnz.model;
 
+import java.sql.Date;
 import java.util.Collection;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -30,11 +34,16 @@ public class Sale {
 	
 	private String name;
 	
-	private String activePeriod; // Period za koj je akcijski dogadjaj aktivan, 27.06-27.07
+	private Date beginActivePeriod; // Period za koj je akcijski dogadjaj aktivan, 27.06-27.07
 	
-	private int Discount; // Procentualni popust
+	private Date endActivePeriod;
 	
-	@OneToMany(mappedBy="sale")
+	private int discount; // Procentualni popust
+	
+	@ManyToMany(targetEntity = ArticalCategory.class)
+    @JoinTable(name = "articalCategory_sales", 
+    	joinColumns = {@JoinColumn(name = "sale_id")}, 
+    	inverseJoinColumns = {@JoinColumn(name = "artical_category_id")})
 	private Collection<ArticalCategory> articalCategoriesOnSale; // Lista kategorija artikala koje su na akciji
 	
 	@ManyToMany(mappedBy = "sales")
@@ -44,18 +53,22 @@ public class Sale {
 	private BillItem billItem;
 	
 	public Sale(){}
-	
-	public Sale(String code, String name, String activePeriod, int discount,
+
+	public Sale(Long id, String code, String name, Date beginActivePeriod, Date endActivePeriod, int discount,
 			Collection<ArticalCategory> articalCategoriesOnSale, Collection<Bill> bills, BillItem billItem) {
 		super();
+		this.id = id;
 		this.code = code;
 		this.name = name;
-		this.activePeriod = activePeriod;
-		Discount = discount;
+		this.beginActivePeriod = beginActivePeriod;
+		this.endActivePeriod = endActivePeriod;
+		this.discount = discount;
 		this.articalCategoriesOnSale = articalCategoriesOnSale;
 		this.bills = bills;
 		this.billItem = billItem;
 	}
+
+
 
 	public Long getId() {
 		return id;
@@ -81,20 +94,12 @@ public class Sale {
 		this.name = name;
 	}
 
-	public String getActivePeriod() {
-		return activePeriod;
-	}
-
-	public void setActivePeriod(String activePeriod) {
-		this.activePeriod = activePeriod;
-	}
-
 	public int getDiscount() {
-		return Discount;
+		return discount;
 	}
 
 	public void setDiscount(int discount) {
-		Discount = discount;
+		this.discount = discount;
 	}
 
 	public Collection<ArticalCategory> getArticalCategoriesOnSale() {
@@ -121,10 +126,26 @@ public class Sale {
 		this.billItem = billItem;
 	}
 
+	public Date getBeginActivePeriod() {
+		return beginActivePeriod;
+	}
+
+	public void setBeginActivePeriod(Date beginActivePeriod) {
+		this.beginActivePeriod = beginActivePeriod;
+	}
+
+	public Date getEndActivePeriod() {
+		return endActivePeriod;
+	}
+
+	public void setEndActivePeriod(Date endActivePeriod) {
+		this.endActivePeriod = endActivePeriod;
+	}
+
 	@Override
 	public String toString() {
-		return "Sale [id=" + id + ", code=" + code + ", name=" + name + ", activePeriod=" + activePeriod + ", Discount="
-				+ Discount + ", articalCategoriesOnSale=" + articalCategoriesOnSale + ", bills=" + bills + ", billItem="
-				+ billItem + "]";
+		return "Sale [id=" + id + ", code=" + code + ", name=" + name + ", beginActivePeriod=" + beginActivePeriod
+				+ ", endActivePeriod=" + endActivePeriod + ", Discount=" + discount + ", articalCategoriesOnSale="
+				+ articalCategoriesOnSale + ", bills=" + bills + ", billItem=" + billItem + "]";
 	}
 }

@@ -1,7 +1,11 @@
 package com.sbnz.controller;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
@@ -16,10 +20,12 @@ import org.springframework.web.servlet.ModelAndView;
 import com.sbnz.model.ArticalCategory;
 import com.sbnz.model.BuyerCategory;
 import com.sbnz.model.ConsumptionThreshold;
+import com.sbnz.model.Sale;
 import com.sbnz.model.User;
 import com.sbnz.services.ArticalCategoryService;
 import com.sbnz.services.BuyerCategoryService;
 import com.sbnz.services.ConsumptionTresholdService;
+import com.sbnz.services.SaleService;
 import com.sbnz.services.UserService;
 
 @Controller
@@ -37,6 +43,9 @@ public class ManagerController {
 	
 	@Autowired 
 	private ArticalCategoryService acService;
+	
+	@Autowired
+	private SaleService saleService;
 	
 	/**
 	 * Display table with all Buyer Categories and form for adding new Buyer Category
@@ -499,6 +508,16 @@ public class ManagerController {
 		return modelAndView;
 	}
 	
+	/**
+	 * Save edited artical category to database
+	 * @param modelAndView
+	 * @param response
+	 * @param requestParams
+	 * @param id
+	 * @param ac_id
+	 * @param ac
+	 * @return
+	 */
 	@RequestMapping(value = "/user/{id}/articalcategories/{ac_id}/edit", method = RequestMethod.POST)
 	public ModelAndView EditArticalCategories(ModelAndView modelAndView,
 			HttpServletResponse response,
@@ -538,6 +557,296 @@ public class ManagerController {
 		modelAndView.addObject("ac", acEdited);
 		
 		modelAndView.addObject("successMessage", "Artical Category has been changed.");
+		
+		return modelAndView;
+	}
+	
+	
+	// Sales controller functions
+	
+	/**
+	 * Display all sales and form for adding new one
+	 * @param modelAndView
+	 * @param response
+	 * @param id
+	 * @param sale
+	 * @return
+	 */
+	@RequestMapping(value = "/user/{id}/sales", method = RequestMethod.GET)
+	public ModelAndView showSales(ModelAndView modelAndView,
+			HttpServletResponse response,
+			@PathVariable Long id,
+			@Valid Sale sale){
+		
+		User user = userService.findUserById(id);
+		
+		System.out.println("userRole: "+user.getRole().getName());
+		
+		// Only user with seler role can access this page
+		if(!user.getRole().getName().equals("Manager")){
+			response.setStatus( HttpServletResponse.SC_BAD_REQUEST );
+		}
+		
+		// Display page with buyer categories options
+		modelAndView.setViewName("sales");
+		
+		modelAndView.addObject("user", user);
+		
+		modelAndView.addObject("articalCategories", acService.getAllArticalCategories());
+		
+		modelAndView.addObject("sa", sale);
+		
+		// Get all buyer categories from database
+		modelAndView.addObject("sales", saleService.getAllSales());
+		
+		return modelAndView;
+	}
+	
+	/**
+	 * Save created sale to database
+	 * @param modelAndView
+	 * @param response
+	 * @param requestParams
+	 * @param id
+	 * @param sa
+	 * @return
+	 */
+	@RequestMapping(value = "/user/{id}/sales", method = RequestMethod.POST)
+	public ModelAndView addSale(ModelAndView modelAndView,
+			HttpServletResponse response,
+			HttpServletRequest request,
+			@RequestParam Map requestParams,
+			@PathVariable Long id,
+			@Valid Sale sa){
+		
+		User user = userService.findUserById(id);
+		
+		System.out.println("userRole: "+user.getRole().getName());
+		
+		// Only user with manager role can access this page
+		if(!user.getRole().getName().equals("Manager")){
+			response.setStatus( HttpServletResponse.SC_BAD_REQUEST );
+		}
+		
+		// Check if sale with that code exists
+		if(saleService.findOneByCode(sa.getCode()) != null){
+			
+			// Display page with sales options
+			modelAndView.setViewName("sales");
+						
+			modelAndView.addObject("errorMessage", "Sale with that code already exists.");
+			
+			modelAndView.addObject("user", user);
+			
+			modelAndView.addObject("sa", sa);
+			
+			// Get all sales from database
+			modelAndView.addObject("sales", saleService.getAllSales());
+			
+			return modelAndView;
+		}
+		
+		// Check if sale with that name exists
+		if(saleService.findOneyName(sa.getName()) != null){
+			
+			// Display page with sales options
+			modelAndView.setViewName("sales");
+			
+			modelAndView.addObject("errorMessage", "Sale with that name already exists.");
+			
+			modelAndView.addObject("user", user);
+			
+			modelAndView.addObject("sa", sa);
+			
+			// Get all sales from database
+			modelAndView.addObject("sales", saleService.getAllSales());
+			
+			return modelAndView;
+		}
+		
+		Collection<ArticalCategory> listOfSelectedAC = new ArrayList<ArticalCategory>();
+		
+		for(int i = 0; i < request.getParameterValues("selectedArticalCategories").length; i++){
+			ArticalCategory selectedAC = acService.findOneById(Long.parseLong(request.getParameterValues("selectedArticalCategories")[i]));
+			listOfSelectedAC.add(selectedAC);
+		}
+		
+		sa.setArticalCategoriesOnSale(listOfSelectedAC);
+		
+		// Save Sale to database
+		Sale resultSA = saleService.save(sa);
+		
+		// Display page with sales options
+		modelAndView.setViewName("sales");
+		
+		modelAndView.addObject("user", user);
+		
+		modelAndView.addObject("sa", resultSA);
+		
+		// Get all sales from database
+		modelAndView.addObject("sales", saleService.getAllSales());
+		
+		return modelAndView;
+		
+	}
+	
+	/**
+	 * Display form with selected sale's details and enable editing his information
+	 * @param modelAndView
+	 * @param response
+	 * @param requestParams
+	 * @param id
+	 * @param sa_id
+	 * @param sa
+	 * @return
+	 */
+	@RequestMapping(value = "/user/{id}/sales/{sa_id}/edit", method = RequestMethod.GET)
+	public ModelAndView showEditSale(ModelAndView modelAndView,
+			HttpServletResponse response,
+			@RequestParam Map requestParams,
+			@PathVariable Long id,
+			@PathVariable Long sa_id,
+			@Valid Sale sa){
+		
+		User user = userService.findUserById(id);
+		
+		System.out.println("userRole: "+user.getRole().getName());
+		
+		// Only user with seler role can access this page
+		if(!user.getRole().getName().equals("Manager")){
+			response.setStatus( HttpServletResponse.SC_BAD_REQUEST );
+		}
+		
+		// Find Sale to edit from database
+		Sale result_sa = saleService.findOneById(sa_id);
+		
+		List<String> selectedAC = new ArrayList<String>();
+		
+		for (ArticalCategory ac : result_sa.getArticalCategoriesOnSale()) {
+			selectedAC.add(ac.getId().toString());
+			System.out.println(ac.getId());
+		}
+		
+		// Display page with form to edit selected Sale
+		modelAndView = new ModelAndView("editSale");
+		
+		modelAndView.addObject("user", user);
+		
+		modelAndView.addObject("sa", result_sa);
+		
+		modelAndView.addObject("articalCategories", acService.getAllArticalCategories());
+		
+		System.out.println("SelectedAC cout: " + selectedAC.size());
+		
+		modelAndView.addObject("selectedAC", selectedAC);
+		
+		return modelAndView;
+	}
+	
+	/**
+	 * Save edited sale to database
+	 * @param modelAndView
+	 * @param response
+	 * @param requestParams
+	 * @param id
+	 * @param sa_id
+	 * @param sa
+	 * @return
+	 */
+	@RequestMapping(value = "/user/{id}/sales/{sa_id}/edit", method = RequestMethod.POST)
+	public ModelAndView EditSale(ModelAndView modelAndView,
+			HttpServletResponse response,
+			HttpServletRequest request,
+			@RequestParam Map requestParams,
+			@PathVariable Long id,
+			@PathVariable Long sa_id,
+			@Valid Sale sa){
+		
+		User user = userService.findUserById(id);
+		
+		System.out.println("userRole: "+user.getRole().getName());
+		
+		// Only user with seler role can access this page
+		if(!user.getRole().getName().equals("Manager")){
+			response.setStatus( HttpServletResponse.SC_BAD_REQUEST );
+		}
+		
+		// Display page with form to edit selected Sale
+		modelAndView = new ModelAndView("editSale");
+				
+		modelAndView.addObject("user", user);
+		
+		// Save the data for the edited Sale
+		Sale saToUpdate = saleService.findOneById(sa_id);
+		
+		System.out.println(saToUpdate.toString());
+		System.out.println(sa.toString());
+		
+		Collection<ArticalCategory> listOfSelectedAC = new ArrayList<ArticalCategory>();
+		
+		for(int i = 0; i < request.getParameterValues("selectedArticalCategories").length; i++){
+			ArticalCategory selectedAC = acService.findOneById(Long.parseLong(request.getParameterValues("selectedArticalCategories")[i]));
+			listOfSelectedAC.add(selectedAC);
+		}
+		
+		sa.setArticalCategoriesOnSale(listOfSelectedAC);
+		
+		saToUpdate.setId(sa_id);
+		saToUpdate.setCode(sa.getCode());
+		saToUpdate.setName(sa.getName());
+		saToUpdate.setBeginActivePeriod(sa.getBeginActivePeriod());
+		saToUpdate.setEndActivePeriod(sa.getEndActivePeriod());
+		saToUpdate.setDiscount(sa.getDiscount());
+		saToUpdate.setArticalCategoriesOnSale(sa.getArticalCategoriesOnSale());
+		
+		Sale saEdited = saleService.save(saToUpdate);
+		
+		modelAndView.addObject("sa", saEdited);
+		
+		modelAndView.addObject("successMessage", "Sale has been changed.");
+		
+		return modelAndView;
+	}
+	
+	/**
+	 * Delete selected sale from database
+	 * @param modelAndView
+	 * @param response
+	 * @param requestParams
+	 * @param id
+	 * @param sa_id
+	 * @param sa
+	 * @return
+	 */
+	@RequestMapping(value = "/user/{id}/sales/{sa_id}/delete", method = RequestMethod.GET)
+	public ModelAndView deleteSales(ModelAndView modelAndView,
+			HttpServletResponse response,
+			@RequestParam Map requestParams,
+			@PathVariable Long id,
+			@PathVariable Long sa_id,
+			@Valid Sale sa){
+		
+		User user = userService.findUserById(id);
+		
+		System.out.println("userRole: "+user.getRole().getName());
+		
+		// Only user with seler role can access this page
+		if(!user.getRole().getName().equals("Manager")){
+			response.setStatus( HttpServletResponse.SC_BAD_REQUEST );
+		}
+		
+		// Delete sale from database
+		saleService.delete(sa_id);
+		
+		// Display page with sales options
+		modelAndView.setViewName("sales");
+		
+		modelAndView.addObject("user", user);
+		
+		modelAndView.addObject("sa", sa);
+		
+		// Get all sales from database
+		modelAndView.addObject("sales", saleService.getAllSales());
 		
 		return modelAndView;
 	}
